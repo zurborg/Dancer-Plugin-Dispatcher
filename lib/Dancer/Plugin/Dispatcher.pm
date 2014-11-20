@@ -161,9 +161,13 @@ sub dispatcher {
         my ($class, $action) = split /#/, $shortcut;
         if ($class) {
             # run through the filters
-            $class = ucfirst $class;
-            $class =~ s{-(.)}{::\u$1}g;
-            $class =~ s{_(.)}{\u$1}g;
+            unless (exists $cfg->{uppercase} and $cfg->{uppercase} eq 'no') {
+                $class = ucfirst $class;
+                $class =~ s{-(.)}{::\u$1}g;
+                $class =~ s{_(.)}{\u$1}g;
+            } else {
+                $class =~ s{-}{::}g;
+            }
             
             # prepend base to class if applicable
             $class = join "::", $base, $class if $base;
