@@ -23,6 +23,7 @@ my %WriteMakefileArgs = (
     "Dancer" => 0,
     "Modern::Perl" => 0,
     "Class::Load" => 0,
+    "Module::Find" => 0,
   },
   "VERSION" => "0.12",
   "test" => {

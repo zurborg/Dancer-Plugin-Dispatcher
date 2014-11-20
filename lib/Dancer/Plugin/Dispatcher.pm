@@ -129,6 +129,7 @@ use Carp;
 use Dancer qw/:syntax/;
 use Dancer::Plugin;
 use Class::Load qw/load_class/;
+use Module::Find qw/useall/;
 
 # automation ... sorta
 
@@ -280,6 +281,18 @@ register boot_classes => sub {
         debug "instanciate class $class";
         $classes->{$class} = $class->new(@{$def{$class}});
     }
+};
+
+register boot_all_classes => sub {
+    return unless config->{plugins};
+
+    our $cfg = config->{plugins}->{Dispatcher};
+
+    my $base = shift || $cfg->{base} || (caller)[0];
+
+    confess "no base" unless defined $base;
+
+    useall $base;
 };
 
 register_plugin;
