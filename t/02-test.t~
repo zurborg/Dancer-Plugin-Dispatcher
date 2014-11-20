@@ -23,6 +23,6 @@ response_content_is [GET => '/redirect'],
 
 read_logs;
 dancer_response GET => '/error';
-like(read_logs()->[0]->{message}, qr{\Qrequest to GET /error crashed: action do_undefined_action not found in class MyApp\E});
+like(read_logs()->[1]->{message}, qr{\Qrequest to GET /error crashed: action do_undefined_action not found in class MyApp\E});
 
 1;

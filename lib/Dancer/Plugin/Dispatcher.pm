@@ -175,7 +175,6 @@ sub dispatcher {
         
         # build the return code (+chain if specified)
         $code = sub {
-            debug "dispatching $class -> $action";
             if (exists $classes->{$class}) {
                 croak "action $action not found in class $class" unless $classes->{$class}->can($action);
                 $classes->{$class}->$action(@_);
