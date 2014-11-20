@@ -4,6 +4,8 @@ package Dancer::Plugin::Dispatcher;
 
 # VERSION
 
+our $VERSION = '0.13';
+
 =head1 SYNOPSIS
 
     use Dancer;
