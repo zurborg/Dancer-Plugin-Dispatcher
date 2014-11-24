@@ -3,7 +3,8 @@ package MyApp;
 use Dancer ':syntax';
 use Dancer::Plugin::Dispatcher;
 
-set plugins => { Dispatcher => { base => 'MyApp', prefix => 'do_', suffix => '_action' } };
+set plugins =>
+  {Dispatcher => {base => 'MyApp', prefix => 'do_', suffix => '_action'}};
 
 sub do_index_action {
     'Hello World';

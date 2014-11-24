@@ -139,72 +139,79 @@ our $classes;
 
 sub dispatcher {
     return unless config->{plugins};
-    
-    our $cfg   = config->{plugins}->{Dispatcher};
-    our $base  = $cfg->{base};
+
+    our $cfg    = config->{plugins}->{Dispatcher};
+    our $base   = $cfg->{base};
     our $prefix = $cfg->{prefix} || '';
     our $suffix = $cfg->{suffix} || '';
-    
+
     # check for a base class in the configuration
     if ($base) {
         load_class($base);
-    } else {
+    }
+    else {
         ($base) = caller(0);
         $base ||= 'main';
     }
-    
+
     sub BUILDCODE {
 
-        my $code ;
+        my $code;
 
         # define the input
         my $shortcut = shift;
-        
+
         # format the shortcut
         my ($class, $action) = split /#/, $shortcut;
         if ($class) {
+
             # run through the filters
             unless (exists $cfg->{uppercase} and $cfg->{uppercase} eq 'no') {
                 $class = ucfirst $class;
                 $class =~ s{-(.)}{::\u$1}g;
                 $class =~ s{_(.)}{\u$1}g;
-            } else {
+            }
+            else {
                 $class =~ s{-}{::}g;
             }
-            
+
             # prepend base to class if applicable
             $class = join "::", $base, $class if $base;
-        } else {
+        }
+        else {
             $class = $base if $base;
         }
-        
-        $action = $prefix.$action.$suffix;
-        
+
+        $action = $prefix . $action . $suffix;
+
         # build the return code (+chain if specified)
         $code = sub {
             if (exists $classes->{$class}) {
-                croak "action $action not found in class $class" unless $classes->{$class}->can($action);
+                croak "action $action not found in class $class"
+                  unless $classes->{$class}->can($action);
                 $classes->{$class}->$action(@_);
-            } else {
+            }
+            else {
                 load_class($class);
-                croak "action $action not found in class $class" unless $class->can($action);
+                croak "action $action not found in class $class"
+                  unless $class->can($action);
                 $class->$action(@_) if $class && $action;
             }
         };
-        
+
         return $code;
     }
-    
+
     my @codes = map { BUILDCODE($_) } @_;
     my $code = sub {
         my @args = @_;
-        my $data ;
+        my $data;
         foreach my $code (@codes) {
-            
+
             # HOW I WISH IT COULD WORK
             #-- break if content is set
             #-- last if Dancer::SharedData->response->content;
-            
+
             # HOW IT MUST WORK
             # execute code
             # break if content is returned or
@@ -212,15 +219,15 @@ sub dispatcher {
             $data = $code->(@args);
             last if $data || Dancer::SharedData->response->status =~ /^3\d\d$/;
         }
-        return $data ;
+        return $data;
     };
-    
+
     return $code;
 }
 
 sub auto_dispatcher {
     return unless config->{plugins};
-    
+
     our $cfg = config->{plugins}->{Dispatcher};
     foreach my $route (@{$cfg->{routes}}) {
         my $re = qr/([a-z,]+) *([^\s>]+) *> *(.*)/;
@@ -230,10 +237,10 @@ sub auto_dispatcher {
                 my $c = dispatcher(split(/[\s,]/, $s));
                 if ($i eq 'get') {
                     Dancer::App->current->registry->universal_add($_, $r, $c)
-                    for ('get', 'head')
+                      for ('get', 'head');
                 }
                 else {
-                    Dancer::App->current->registry->universal_add($i, $r, $c)
+                    Dancer::App->current->registry->universal_add($i, $r, $c);
                 }
             }
         }
@@ -275,9 +282,9 @@ register boot_classes => sub {
     return unless config->{plugins};
 
     our $cfg = config->{plugins}->{Dispatcher};
-    
+
     my %def = (%{$cfg->{boot}}, @_);
-    
+
     foreach my $class (keys %def) {
         load_class($class);
         debug "instanciate class $class";
